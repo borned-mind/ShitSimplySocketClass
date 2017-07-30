@@ -63,6 +63,10 @@ namespace Sockets{
  	unsigned short int len;
  	unsigned short int chksum;
 	};
+   struct icmp_struct{
+    struct icmphdr icmph;
+    char * icmp_buf;
+   };
    struct raw_socket_struct{
     char * raw_buf;
     ipheader * ip;
@@ -102,7 +106,7 @@ namespace Sockets{
       
 
       raw_socket_struct self_raw_packet;
-      
+      icmp_struct self_icmp_packet;
 
       const int sockaddr_len = sizeof(struct sockaddr_in);
       status_of_socket status_sock;
@@ -116,7 +120,13 @@ namespace Sockets{
       int init_socket(int domain=AF_INET, int type=SOCK_STREAM, int protocol=0);
       int init_socket_udp(int domain=AF_INET,int protocol=0);
       int init_socket_tcp(int domain=AF_INET,int protocol=0);
-      int init_socket_icmp(int domain=AF_INET,int type=SOCK_DGRAM);
+      int init_socket_icmp(
+      int domain=AF_INET,
+      int type=SOCK_DGRAM,
+      unsigned int /*__attribute__((aligned(8)))*/ type_icmp = ICMP_ECHO , 
+      unsigned short echo_id = 1,
+      unsigned short echo_sequence = 1
+      );
       int init_socket_raw(
         int domain=AF_INET,
 	bool ownHeader=true,

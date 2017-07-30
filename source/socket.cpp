@@ -86,16 +86,26 @@ int Socket::init_socket(int domain, int type, int protocol){
   this->status_sock = inited;
   return sockfd;
 }int Socket::init_socket_udp(int domain, int protocol){ // simply recursive
-   return this->init_socket(domain,SOCK_DGRAM,protocol);
+   int s = this->init_socket(domain,SOCK_DGRAM,protocol);
+  if( s == -1 ) throw(init_sock_err);
+  return s;
 }int Socket::init_socket_tcp(int domain, int protocol){ // simply recursive
-   return this->init_socket(domain,SOCK_STREAM,protocol);
+   int s = this->init_socket(domain,SOCK_STREAM,protocol);
+  if( s == -1 ) throw(init_sock_err);
+  return s;
 }int Socket::init_socket_icmp(int domain){
-  return this->init_socket(domain,SOCK_RAW, IPPROTO_ICMP);
+  int s = this->init_socket(domain,SOCK_RAW, IPPROTO_ICMP);
+  if( s == -1 ) throw(init_sock_err);
+  return s;
 }int Socket::init_socket_raw(int domain,bool ownHeader){
-if(!ownHeader)
-  return this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
+if(!ownHeader){
+  int s = this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
+  if( s == -1 ) throw(init_sock_err);
+  return s;
+}
 else{
  int s = this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
+ if( s == -1 ) throw(init_sock_err);
  this->setsockopt_(s,IPPROTO_IP, IP_HDRINCL, (const void *)1, sizeof(int));
  return s;
 }

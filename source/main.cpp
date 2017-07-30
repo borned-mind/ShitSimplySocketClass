@@ -1,7 +1,10 @@
 #include "socket.hpp"
-#define TCPTEST
+#define UDPTEST
+
+
 int main(int argcount,char**arguments){
 static Sockets::Socket * sock;
+#ifdef SIMPLYHTTPCONNECTTEST
 sock = new Sockets::Socket("google.com",80);
 sock->write("GET /\r\n");
 printf("%s\n",sock->Read());
@@ -16,6 +19,8 @@ printf("%s\n",sock->Read());
   if ( err == 1 ) printf("You are not set sock");
 }
 delete sock;
+#endif
+
 
 #ifdef UDPTEST
 sock = new Sockets::Socket();
@@ -26,9 +31,9 @@ while(1){
 try{
    tmp = sock->Read_UDP();
    char ipv4[INET_ADDRSTRLEN];
-
    inet_ntop(AF_INET, &tmp.from.sin_addr, ipv4, INET_ADDRSTRLEN);
-   printf("%s write -> %s\n",ipv4,tmp.message);
+   sock->write(tmp.message,0,(struct sockaddr*)&tmp.from);
+   printf("%s:%d write -> %s\n",ipv4,ntohs(tmp.from.sin_port),tmp.message);
    delete tmp.message;
 }catch(Sockets::for_throws err){
 }
@@ -47,11 +52,16 @@ char ipv4[INET_ADDRSTRLEN];
 inet_ntop(AF_INET, &tmp.cli_addr.sin_addr, ipv4, INET_ADDRSTRLEN);
 
 sock->writeTo(tmp.socket,"Test Test how you are see this text?\r\n");
-printf("%s write -> %s\n",ipv4,sock->Read_from(tmp.socket));
+printf("%s:%d write -> %s\n",ipv4,ntohs(tmp.cli_addr.sin_port),sock->Read_from(tmp.socket));
 close(tmp.socket);
 }catch(Sockets::for_throws err){
 }
 }
 #endif
+#ifdef RAWTEST
+
+#endif
+
+
 
 }

@@ -21,3 +21,5 @@ clean:
 	rm -rf library
 	rm -rf $(TESTPROGRAMNAME)
 	rm -rf build/*
+reagain: clean all test
+	

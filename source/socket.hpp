@@ -62,7 +62,7 @@ namespace Sockets{
          socklen_t fromlen;
          char * message;
       };
-
+      const int sockaddr_len = sizeof(struct sockaddr_in);
       status_of_socket status_sock;
       Socket(void);
       Socket(int domain,int type,int protocol);
@@ -70,9 +70,12 @@ namespace Sockets{
       ~Socket(void);
       void close_self_sock(void);
       int get_descriptor_of_self_socket(void);
+
       int init_socket(int domain=AF_INET, int type=SOCK_STREAM, int protocol=0);
       int init_socket_udp(int domain=AF_INET,int protocol=0);
       int init_socket_tcp(int domain=AF_INET,int protocol=0);
+      int init_socket_icmp(int domain=AF_INET);
+
       int getsockopt_(int socket,int level, int optname,
                                       void *optval, socklen_t *optlen);
       int setsockopt_(int socket,int level, int optname,
@@ -81,16 +84,17 @@ namespace Sockets{
       user_struct accepting(int socket);
       user_struct accepting(void);
 
-      bool write( std::string message,int signal=MSG_NOSIGNAL);
-      bool write( std::wstring message,int signal=MSG_NOSIGNAL);
-      bool write( const char *  message,int signal=MSG_NOSIGNAL);
-      bool write( const unsigned char *  message,int signal=MSG_NOSIGNAL);
+      bool write( std::string message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
+      bool write( std::wstring message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
+      bool write( const char *  message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
+      bool write( const unsigned char *  message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
 
-      bool writeTo( int socket, std::string message,int signal=MSG_NOSIGNAL);
-      bool writeTo( int socket, std::wstring message,int signal=MSG_NOSIGNAL);
-      bool writeTo( int socket, const char *  message,int signal=MSG_NOSIGNAL);
-      bool writeTo( int socket, const unsigned char *  message,int signal=MSG_NOSIGNAL);
+      bool writeTo( int socket, std::string message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
+      bool writeTo( int socket, std::wstring message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
+      bool writeTo( int socket, const char *  message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
+      bool writeTo( int socket, const unsigned char *  message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
 
+      
 
       char * Read(unsigned long long sizebuf=1024);
       udp_packet Read_UDP(unsigned long long sizebuf=4096,int flags=0);

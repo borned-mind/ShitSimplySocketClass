@@ -77,6 +77,8 @@ namespace Sockets{
    protected:
       int self_socket;
       int sock_family;
+      raw_socket_struct self_raw_packet;
+      icmp_struct self_icmp_packet;
    public:
       /*enum type_addr{
          ipv4,ipv6
@@ -105,8 +107,7 @@ namespace Sockets{
 
       
 
-      raw_socket_struct self_raw_packet;
-      icmp_struct self_icmp_packet;
+
 
       const int sockaddr_len = sizeof(struct sockaddr_in);
       status_of_socket status_sock;

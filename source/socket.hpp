@@ -62,6 +62,8 @@ namespace Sockets{
          socklen_t fromlen;
          char * message;
       };
+      typedef udp_packet icmp_packet;
+      typedef udp_packet raw_packet;
       const int sockaddr_len = sizeof(struct sockaddr_in);
       status_of_socket status_sock;
       Socket(void);
@@ -100,6 +102,7 @@ namespace Sockets{
 
       char * Read(unsigned long long sizebuf=1024);
       udp_packet Read_UDP(unsigned long long sizebuf=4096,int flags=0);
+      udp_packet Read_Other(unsigned long long sizebuf=4096,int flags=0);
       char * Read_from(int socket,unsigned long long sizebuf=1024);
       void set_sock(int socket);
       virtual bool connect_to(const char * host,int port);

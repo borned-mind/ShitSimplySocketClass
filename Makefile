@@ -23,3 +23,5 @@ clean:
 	rm -rf build/*
 reagain: clean all test
 	
+starttest: reagain
+	LD_LIBRARY_PATH=./library ./$(TESTPROGRAMNAME)

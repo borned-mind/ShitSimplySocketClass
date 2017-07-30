@@ -86,22 +86,14 @@ int Socket::init_socket(int domain, int type, int protocol){
   this->status_sock = inited;
   return sockfd;
 }int Socket::init_socket_udp(int domain, int protocol){ // simply recursive
-   int s = this->init_socket(domain,SOCK_DGRAM,protocol);
-  if( s == -1 ) throw(init_sock_err);
-  return s;
+   return this->init_socket(domain,SOCK_DGRAM,protocol);
 }int Socket::init_socket_tcp(int domain, int protocol){ // simply recursive
-   int s = this->init_socket(domain,SOCK_STREAM,protocol);
-  if( s == -1 ) throw(init_sock_err);
-  return s;
+   return this->init_socket(domain,SOCK_STREAM,protocol);
 }int Socket::init_socket_icmp(int domain){
-  int s = this->init_socket(domain,SOCK_RAW, IPPROTO_ICMP);
-  if( s == -1 ) throw(init_sock_err);
-  return s;
+  return this->init_socket(domain,SOCK_RAW, IPPROTO_ICMP);
 }int Socket::init_socket_raw(int domain,bool ownHeader){
 if(!ownHeader){
-  int s = this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
-  if( s == -1 ) throw(init_sock_err);
-  return s;
+  return this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
 }
 else{
  int s = this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
@@ -239,6 +231,15 @@ char * Socket::Read_from(int socket,unsigned long long sizebuf){
    #endif
    return buffer;
 }Socket::udp_packet Socket::Read_UDP(unsigned long long sizebuf,int flags){
+  Socket::udp_packet returns;
+  returns.fromlen=sizeof(returns.from);
+  char * buffer = new char[sizebuf];
+
+ if( recvfrom(this->self_socket, buffer, sizebuf-1, flags,
+                 (struct sockaddr *)&returns.from, &returns.fromlen) == -1 )throw(bad_read);
+  returns.message=buffer;
+  return returns;
+}Socket::udp_packet Socket::Read_Other(unsigned long long sizebuf,int flags){
   Socket::udp_packet returns;
   returns.fromlen=sizeof(returns.from);
   char * buffer = new char[sizebuf];

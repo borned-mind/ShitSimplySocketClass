@@ -59,6 +59,23 @@ close(tmp.socket);
 }
 #endif
 #ifdef ICMPTEST
+sock = new Sockets::Socket();
+//sock->set_sock(sock->init_socket_icmp());
+Sockets::Socket::icmp_packet tmp;
+/*
+while(1){
+try{
+   tmp = sock->Read_Other();
+   char ipv4[INET_ADDRSTRLEN];
+   inet_ntop(AF_INET, &tmp.from.sin_addr, ipv4, INET_ADDRSTRLEN);
+   sock->write(tmp.message,0,(struct sockaddr*)&tmp.from);
+   printf("%s:%d write -> %s\n",ipv4,ntohs(tmp.from.sin_port),tmp.message);
+   delete tmp.message;
+}catch(Sockets::for_throws err){
+}
+
+}
+*/
 
 #endif
 

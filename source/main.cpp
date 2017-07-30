@@ -1,5 +1,5 @@
 #include "socket.hpp"
-#define UDPTEST
+#define RAWTEST
 
 
 int main(int argcount,char**arguments){
@@ -79,11 +79,11 @@ sock = new Sockets::Socket();
 sock->set_sock(sock->init_socket_icmp());
 Sockets::Socket::icmp_packet tmp;
 sock->write(packetdata,0,(struct sockaddr*)&addr);
-
-
-
 #endif
 
+#ifdef RAWTEST
+
+#endif
 
 
 }

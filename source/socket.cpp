@@ -258,3 +258,12 @@ if(read(this->self_socket,buffer,sizebuf-1) == -1) throw(bad_read);
 #endif
 return buffer;
 }
+
+
+
+int Socket::shutdown_sock(int how){
+shutdown(this->self_socket,how);
+}int Socket::shutdown_sock(int socket,int how){
+shutdown(socket,how);
+}
+

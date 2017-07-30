@@ -101,7 +101,8 @@ namespace Sockets{
       bool writeTo( int socket, std::wstring message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
       bool writeTo( int socket, const char *  message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
       bool writeTo( int socket, const unsigned char *  message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
-
+      int shutdown_sock(int how);
+      int shutdown_sock(int socket,int how);
       
 
       char * Read(unsigned long long sizebuf=1024);

@@ -38,7 +38,7 @@ namespace Sockets{
       socket_init,   not_exist_sock,
       not_founded_host, connecting_refused,
       bad_banding,bad_accept,bad_write,bad_read,socket_used_for_other,
-      socket_not_inited
+      socket_not_inited,setsockopt_err
    };
    class Socket{
    protected:
@@ -75,6 +75,8 @@ namespace Sockets{
       int init_socket_udp(int domain=AF_INET,int protocol=0);
       int init_socket_tcp(int domain=AF_INET,int protocol=0);
       int init_socket_icmp(int domain=AF_INET);
+      int init_socket_raw(int domain=AF_INET,bool ownHeader=true);
+
 
       int getsockopt_(int socket,int level, int optname,
                                       void *optval, socklen_t *optlen);

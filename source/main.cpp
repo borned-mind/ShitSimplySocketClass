@@ -1,5 +1,5 @@
 #include "socket.hpp"
-#define UDPTEST
+#define ICMPTEST
 
 
 int main(int argcount,char**arguments){
@@ -58,7 +58,7 @@ close(tmp.socket);
 }
 }
 #endif
-#ifdef RAWTEST
+#ifdef ICMPTEST
 
 #endif
 

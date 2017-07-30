@@ -65,7 +65,9 @@ bool Socket::connect_to(const char * host,int port){
 int Socket::getsockopt_(int socket,int level, int optname,void *optval, socklen_t *optlen){
 return getsockopt(socket, level, optname,optval, optlen);
 }int Socket::setsockopt_(int socket,int level, int optname,const void *optval, socklen_t optlen){
-return setsockopt (socket, level, optname, optval,optlen);
+int returns ;
+if(returns = setsockopt (socket, level, optname, optval,optlen) < 0) throw(setsockopt_err);
+return returns;
 }
 void Socket::set_sock(int socket){
   this->self_socket = socket;
@@ -89,6 +91,15 @@ int Socket::init_socket(int domain, int type, int protocol){
    return this->init_socket(domain,SOCK_STREAM,protocol);
 }int Socket::init_socket_icmp(int domain){
   return this->init_socket(domain,SOCK_RAW, IPPROTO_ICMP);
+}int Socket::init_socket_raw(int domain,bool ownHeader){
+if(!ownHeader)
+  return this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
+else{
+ int s = this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
+ this->setsockopt_(s,IPPROTO_IP, IP_HDRINCL, (const void *)1, sizeof(int));
+ return s;
+}
+
 }
 
 int Socket::get_descriptor_of_self_socket(void){

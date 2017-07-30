@@ -19,6 +19,7 @@
  #include <netinet/in.h>
  #include <netdb.h>
  #include <arpa/inet.h>
+ #include <netinet/ip_icmp.h>
 #endif
 #include <string>
 #include "somefunc.hpp"
@@ -38,7 +39,7 @@ namespace Sockets{
       init_sock_err,   not_exist_sock,
       not_founded_host, connecting_refused,
       bad_banding,bad_accept,bad_write,bad_read,socket_used_for_other,
-      socket_not_inited,setsockopt_err
+      socket_not_inited,setsockopt_err,undefined_type_icmp
    };
    class Socket{
    protected:
@@ -62,6 +63,9 @@ namespace Sockets{
          socklen_t fromlen;
          char * message;
       };
+      enum type_of_icmp{
+	raw,echo
+      };
       typedef udp_packet icmp_packet;
       typedef udp_packet raw_packet;
       const int sockaddr_len = sizeof(struct sockaddr_in);
@@ -76,7 +80,7 @@ namespace Sockets{
       int init_socket(int domain=AF_INET, int type=SOCK_STREAM, int protocol=0);
       int init_socket_udp(int domain=AF_INET,int protocol=0);
       int init_socket_tcp(int domain=AF_INET,int protocol=0);
-      int init_socket_icmp(int domain=AF_INET);
+      int init_socket_icmp(int domain=AF_INET,int type=SOCK_DGRAM);
       int init_socket_raw(int domain=AF_INET,bool ownHeader=true);
 
 

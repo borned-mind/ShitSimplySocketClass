@@ -89,8 +89,8 @@ int Socket::init_socket(int domain, int type, int protocol){
    return this->init_socket(domain,SOCK_DGRAM,protocol);
 }int Socket::init_socket_tcp(int domain, int protocol){ // simply recursive
    return this->init_socket(domain,SOCK_STREAM,protocol);
-}int Socket::init_socket_icmp(int domain){
-  return this->init_socket(domain,SOCK_DGRAM, IPPROTO_ICMP);
+}int Socket::init_socket_icmp(int domain,int type){
+  return this->init_socket(domain,type, IPPROTO_ICMP);
 }int Socket::init_socket_raw(int domain,bool ownHeader){
 if(!ownHeader){
   return this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);

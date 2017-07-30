@@ -1,5 +1,5 @@
 #include "socket.hpp"
-#define ICMPTEST
+#define UDPTEST
 
 
 int main(int argcount,char**arguments){
@@ -60,9 +60,9 @@ close(tmp.socket);
 #endif
 #ifdef ICMPTEST
 sock = new Sockets::Socket();
-//sock->set_sock(sock->init_socket_icmp());
+sock->set_sock(sock->init_socket_icmp());
 Sockets::Socket::icmp_packet tmp;
-/*
+
 while(1){
 try{
    tmp = sock->Read_Other();
@@ -75,7 +75,7 @@ try{
 }
 
 }
-*/
+
 
 #endif
 

@@ -35,10 +35,10 @@ namespace Sockets{
       #ifdef WIN32
       WSAStartup_Failed,
       #endif
-      socket_init,   not_exist_sock,
+      init_sock_err,   not_exist_sock,
       not_founded_host, connecting_refused,
       bad_banding,bad_accept,bad_write,bad_read,socket_used_for_other,
-      socket_not_inited,setsockopt_err,init_sock_err
+      socket_not_inited,setsockopt_err
    };
    class Socket{
    protected:

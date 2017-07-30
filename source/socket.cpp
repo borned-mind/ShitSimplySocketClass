@@ -82,7 +82,7 @@ int Socket::init_socket(int domain, int type, int protocol){
    #endif
   this->sock_family=domain;
   int sockfd = socket(domain, type, protocol);
-  if(sockfd == -1) throw(socket_init);
+  if(sockfd == -1) throw(init_sock_err);
   this->status_sock = inited;
   return sockfd;
 }int Socket::init_socket_udp(int domain, int protocol){ // simply recursive

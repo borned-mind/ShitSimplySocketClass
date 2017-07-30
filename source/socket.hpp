@@ -41,6 +41,34 @@ namespace Sockets{
       bad_banding,bad_accept,bad_write,bad_read,socket_used_for_other,
       socket_not_inited,setsockopt_err,undefined_type_icmp
    };
+      typedef unsigned char ubyte;
+      typedef char byte;
+   // The IP header's structure
+   struct ipheader {
+ 	ubyte      iph_ihl:5, iph_ver:4;
+ 	ubyte      iph_tos;
+ 	unsigned short int iph_len;
+ 	unsigned short int iph_ident;
+ 	ubyte      iph_flag;
+ 	unsigned short int iph_offset;
+ 	ubyte      iph_ttl;
+	ubyte      iph_protocol;
+	unsigned short int iph_chksum;
+ 	unsigned int       iph_sourceip;
+ 	unsigned int       iph_destip;
+	};
+   struct raw_header {
+	unsigned short int srcport;
+ 	unsigned short int destport;
+ 	unsigned short int len;
+ 	unsigned short int chksum;
+	};
+   struct raw_socket_struct{
+    char * raw_buf;
+    ipheader * ip;
+    raw_header * header;
+    int * socket;
+   };
    class Socket{
    protected:
       int self_socket;
@@ -63,11 +91,19 @@ namespace Sockets{
          socklen_t fromlen;
          char * message;
       };
+/*
       enum type_of_icmp{
 	raw,echo
       };
+*/
       typedef udp_packet icmp_packet;
       typedef udp_packet raw_packet;
+
+      
+
+      raw_socket_struct self_raw_packet;
+      
+
       const int sockaddr_len = sizeof(struct sockaddr_in);
       status_of_socket status_sock;
       Socket(void);
@@ -81,7 +117,19 @@ namespace Sockets{
       int init_socket_udp(int domain=AF_INET,int protocol=0);
       int init_socket_tcp(int domain=AF_INET,int protocol=0);
       int init_socket_icmp(int domain=AF_INET,int type=SOCK_DGRAM);
-      int init_socket_raw(int domain=AF_INET,bool ownHeader=true);
+      int init_socket_raw(
+        int domain=AF_INET,
+	bool ownHeader=true,
+	const char * source_ip=0,
+	const char * dest_ip=0,
+	int source_port=0,
+	int dest_port=0,
+	unsigned char ihl = 5,
+	unsigned char ver = 4,
+	unsigned char tos = 16,
+	unsigned char TTL = 128,
+	unsigned char protocol = 17
+	);
 
 
       int getsockopt_(int socket,int level, int optname,
@@ -116,3 +164,4 @@ namespace Sockets{
 
    };
 }
+

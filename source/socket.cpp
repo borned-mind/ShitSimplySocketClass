@@ -91,13 +91,42 @@ int Socket::init_socket(int domain, int type, int protocol){
    return this->init_socket(domain,SOCK_STREAM,protocol);
 }int Socket::init_socket_icmp(int domain,int type){
   return this->init_socket(domain,type, IPPROTO_ICMP);
-}int Socket::init_socket_raw(int domain,bool ownHeader){
+}int Socket::init_socket_raw(
+        int domain,
+	bool ownHeader,
+	const char * source_ip,
+	const char * dest_ip,
+	int source_port,
+	int dest_port,
+	unsigned char ihl,
+	unsigned char ver,
+	unsigned char tos,
+	unsigned char TTL,
+	unsigned char protocol
+){
 if(!ownHeader){
   return this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
 }
 else{
  int s = this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
  if( s == -1 ) throw(init_sock_err);
+ this->self_raw_packet.raw_buf = new char[SIZEBUFFER];
+ this->self_raw_packet.ip = (struct ipheader *) this->self_raw_packet.raw_buf;
+ this->self_raw_packet.header = (struct raw_header *) (this->self_raw_packet.raw_buf + sizeof(struct ipheader));
+ this->self_raw_packet.socket=&s;
+ this->self_raw_packet.ip->iph_ihl = ihl;
+ this->self_raw_packet.ip->iph_ver = ver;
+ this->self_raw_packet.ip->iph_tos = tos; 
+ this->self_raw_packet.ip->iph_len = sizeof(struct ipheader) + sizeof(struct raw_header);
+ //this->self_raw_packet->ipheader->iph_ident = htons(54321); // <<<< --- ident?
+ this->self_raw_packet.ip->iph_ttl = TTL;
+ this->self_raw_packet.ip->iph_protocol = protocol; 
+ this->self_raw_packet.ip->iph_sourceip = inet_addr(source_ip);
+ this->self_raw_packet.ip->iph_destip = inet_addr(dest_ip);
+ this->self_raw_packet.header->srcport = htons(source_port);
+ this->self_raw_packet.header->destport = htons(dest_port);
+ this->self_raw_packet.header->len = htons(sizeof(struct raw_header));
+ //this->self_raw_packet->ipheader->iph_chksum = csum((unsigned short *)this->raw_buf, sizeof(struct ipheader) + sizeof(struct raw_header));
  this->setsockopt_(s,IPPROTO_IP, IP_HDRINCL, (const void *)1, sizeof(int));
  return s;
 }
@@ -266,4 +295,4 @@ shutdown(this->self_socket,how);
 }int Socket::shutdown_sock(int socket,int how){
 shutdown(socket,how);
 }
-
+#undef SIZEBUFFER

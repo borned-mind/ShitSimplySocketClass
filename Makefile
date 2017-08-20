@@ -6,6 +6,7 @@ all: socket.o somefunc.o library SimplyClassCopyHeaders
 
 SimplyClassCopyHeaders:
 	cp source/socket.hpp library/SimplyClassSocket.hpp
+	cp source/somefunc.hpp library/somefunc.hpp
 test:
 	g++ source/main.cpp -L library/ -l$(NAMELIBRARY) -o $(TESTPROGRAMNAME)
 

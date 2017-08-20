@@ -151,6 +151,8 @@ namespace Sockets{
       user_struct accepting(int socket);
       user_struct accepting(void);
 
+      bool writeBytes(const char * bytes,size_t n,int signal=MSG_NOSIGNAL,struct sockaddr * to=0);
+
       bool write( std::string message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
       bool write( std::wstring message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);
       bool write( const char *  message,int signal=MSG_NOSIGNAL,struct sockaddr *to=0);

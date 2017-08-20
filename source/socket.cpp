@@ -177,6 +177,17 @@ returns.cli_addr=cli_addr;
 return returns;
 }
 
+bool Socket::writeBytes(const char * message, size_t n , int signal, struct sockaddr * to){
+if(!this->status_sock) throw(not_exist_sock);
+if(to == 0){
+if(send(this->self_socket,message,n,signal) == -1) throw(bad_write);
+}else{
+if(sendto(this->self_socket, message,n, signal,
+               to, this->sockaddr_len) == -1) throw ( bad_write );
+}
+
+}
+
 bool Socket::write(std::string message,int signal,struct sockaddr *to){
 if(!this->status_sock) throw(not_exist_sock);
 if(to == 0){

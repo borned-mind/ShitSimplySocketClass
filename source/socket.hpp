@@ -178,3 +178,42 @@ namespace Sockets{
    };
 }
 
+typedef unsigned char __attribute__((mode(QI))) byte;
+
+namespace Dark{
+
+struct Socks{
+byte version;
+byte type;
+byte host[2];
+byte port[4];
+byte idstring[10];
+};
+
+
+
+
+class Socks5Proxy : public Sockets::Socket{
+private:
+bool error;
+protected:
+bool connected;
+char * BackHost=0;
+int BackPort=0;
+public:
+
+bool isset_error(void){
+	return error;
+}bool connected_succesfully(void){
+	return connected;
+}
+
+Socks5Proxy(const char * host,int port,const char * proxy_host="127.0.0.1",const int proxy_port=4447);
+bool ReConnectToDark(void);
+bool SocksConnect(const char * host,const int port);
+bool SocksConnect(void);
+};
+
+}
+
+

@@ -1,6 +1,6 @@
 #include "socket.hpp"
 
-using namespace Sockets;
+namespace Sockets{
 Socket::Socket(void){
 //... ... ... ... ...
 this->status_sock=not_inited;
@@ -318,4 +318,136 @@ shutdown(this->self_socket,how);
 }int Socket::shutdown_sock(int socket,int how){
 shutdown(socket,how);
 }
+
+}//namespace
+
+namespace Dark{
+
+Socks5Proxy::Socks5Proxy(const char * host,int port,
+const char * proxy_host,const int proxy_port){
+
+try{
+set_sock(init_socket_tcp());
+}
+
+catch(Sockets::for_throws err){
+this->error=true;
+try{
+	close_self_sock(); // close self sock.
+}catch(Sockets::for_throws err){
+	this->error=true;
+}
+
+
+}// try 13:0
+
+if(!this->error){
+
+
+	try{
+		connect_to(proxy_host,proxy_port); // conecting to proxy
+	}catch( Sockets::for_throws err ){
+	try{
+		close_self_sock(); // close self sock.
+	}catch(Sockets::for_throws err){
+		this->error=true;// if error with closing fd
+	}
+		this->error=true;// if error with connect
+	} 
+
+}// if not error
+
+
+
+if( !SocksConnect(host,port) ){
+
+try{
+ close_self_sock(); // close self sock.
+}catch(Sockets::for_throws err){}//try{...}catch{}
+ this->error=true;
+
+}//if
+
+
+}
+
+
+bool Socks5Proxy::ReConnectToDark(void){
+try{
+shutdown_sock(0); // close read in fd.
+shutdown_sock(1); // close write in fd.
+close_self_sock(); // close self sock.
+}catch(Sockets::for_throws err){
+return false;
+} 
+if(!BackHost || !BackPort) return false;
+Socks5Proxy(BackHost,BackPort);
+return SocksConnect();
+}
+
+bool Socks5Proxy::SocksConnect(void){
+if(!BackHost || !BackPort) return false;
+return SocksConnect(BackHost,BackPort);
+}bool Socks5Proxy::SocksConnect(const char * host,const int port){
+//set streaming
+byte * bytes = new byte[4];
+bytes[0] = 0x05;
+bytes[1] = 0x01;
+bytes[2] = 0x00;
+try{
+writeBytes((const char*)bytes,3);
+}catch(Sockets::for_throws err){
+delete [] bytes;
+return false;
+}
+
+
+
+char * server_answer = Read(4);
+if( server_answer[1] != 0  ){
+delete [] bytes;
+return false; // error
+}
+if( !BackHost || !BackPort){
+// not connected, we have to set
+BackHost = strdup(host);
+BackPort = port;
+}
+
+
+delete  [] server_answer;
+
+
+char  hostLen = (char)strlen(host);
+char* LastRequst = new char[4 + 1 + hostLen + 2];
+short HPort = htons(port);
+
+bytes[3]=3;
+
+memcpy(LastRequst, bytes, 4);                // 5, 1, 0, 3
+memcpy(LastRequst + 4, &hostLen, 1);        // Domain Length 1 byte
+memcpy(LastRequst + 5, host, hostLen);    // Domain 
+memcpy(LastRequst + 5 + hostLen, &HPort, 2); // Port
+
+writeBytes((const char*)LastRequst,4 + 1 + hostLen + 2);
+
+delete [] LastRequst;
+
+
+server_answer=Read(10);
+if(server_answer[1] != 0){
+delete [] bytes;
+return false;
+}
+
+delete  [] server_answer;
+delete [] bytes;
+
+this->connected=true;
+return true;
+}
+
+}
+
+
 #undef SIZEBUFFER

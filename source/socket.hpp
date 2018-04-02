@@ -183,7 +183,7 @@ namespace Sockets{
       udp_packet (Socket::*Read_Other)(unsigned long long sizebuf,int flags	) = &Socket::Read_UDP;
 
       void set_sock(int socket);
-      virtual void connect_to(std::string host, int port);
+      virtual void connect_to(std::string host, int port, struct timeval timeout={10,0});
       virtual void binding(std::string, int port, int maxlisten=100);
       virtual void close_connect(int socket) noexcept;
 

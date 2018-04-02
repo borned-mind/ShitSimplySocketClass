@@ -44,7 +44,7 @@ void Socket::close_socket(int socket) noexcept{
 }
 
 
-void Socket::connect_to(std::string host, int port) {
+void Socket::connect_to(std::string host, int port, struct timeval timeout) {
 
   
    if( static_cast<int>(status_sock) > 1 ) 
@@ -68,6 +68,7 @@ void Socket::connect_to(std::string host, int port) {
 		throw_error("Can't connect to ", host, ":", port );
 
    status_sock = status_of_socket::connected;
+   setsockopt_(self_socket,SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout) );
 
 }
 

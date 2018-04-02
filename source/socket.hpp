@@ -40,15 +40,7 @@
 #define SIZEBUFFER 4096
 
 namespace Sockets{
-   enum for_throws{
-      #ifdef WIN32
-      WSAStartup_Failed,
-      #endif
-      init_sock_err,   not_exist_sock,
-      not_founded_host, connecting_refused,
-      bad_banding,bad_accept,bad_write,bad_read,socket_used_for_other,
-      socket_not_inited,setsockopt_err,undefined_type_icmp
-   };
+
       using byte = char;
       using ubyte = unsigned byte;
 
@@ -126,7 +118,7 @@ namespace Sockets{
 		self_socket(socket), selfHost(ownaddr), sock_family(domain) ,status_sock ( status ) {}
 		
       Socket(int domain,int type,int protocol);
-      Socket(const char * host,int port,type_sock type=type_sock::tcp, int domain = AF_INET, int protocol = 0 );
+      Socket(const char * host, int port,type_sock type=type_sock::tcp, int domain = AF_INET, int protocol = 0 );
       ~Socket(void);
 
       void close_self_sock(void) noexcept;
@@ -180,11 +172,15 @@ namespace Sockets{
       int shutdown_sock(int socket,int how);
       
 
-      std::string Read(unsigned long long sizebuf=1024);
-      std::string Read(int socket,unsigned long long sizebuf=1024);
+
+           
+
+      std::string Read(unsigned long long sizebuf=1024, int socket=0);
+
 
       udp_packet Read_UDP(unsigned long long sizebuf=4096,int flags=0);
-     // using udp_packet * (Socket::*Read_Other)(unsigned long long sizebuf=4096,int flags=0) = &Socket::Read_UDP;
+
+      udp_packet (Socket::*Read_Other)(unsigned long long sizebuf,int flags	) = &Socket::Read_UDP;
 
       void set_sock(int socket);
       virtual void connect_to(std::string host, int port);
@@ -242,10 +238,11 @@ public:
 		return connected;
 	}
 
-	Socks5Proxy(const char * host,int port,const char * proxy_host="127.0.0.1",const int proxy_port=4447);
-	bool ReConnectToDark(void);
-	bool SocksConnect(const char * host,const int port);
-	bool SocksConnect(void);
+Socks5Proxy(const char * proxy_host="127.0.0.1",const int proxy_port=9050);
+bool ReConnectToDark(void);
+bool SocksConnect(const char * host,const int port);
+bool SocksConnect(void);
+
 };
 
 }

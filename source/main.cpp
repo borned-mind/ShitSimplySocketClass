@@ -9,11 +9,20 @@ int main(int argcount,char**arguments){
 if(argcount < 4)
 	return fprintf(stderr, "%s host port text\n",arguments[0]);
 try{
-	Dark::Socks5Proxy * sock = new Dark::Socks5Proxy(arguments[1], atoi(arguments[2]) );
-	sock->write(arguments[3]);
-	sock->write("\r\n\r\n");
-	std::cout << sock->Read() << std::endl;
-	delete sock;
+	Dark::Socks5Proxy sock =  Dark::Socks5Proxy{};
+	std::cout << "Connect via socks" << std::endl;
+	if( !sock.SocksConnect(arguments[1],atoi( arguments[2] ) ) ){	
+		std::cerr << "Can't connect via socks" << std::endl;
+	}
+
+	std::cout << "Write" << std::endl;
+	sock.write(arguments[3]);
+	sock.write("\r\n");
+	std::cout << "Read" << std::endl;
+	std::cout << sock.Read() << std::endl;
+	std::cout << sock.Read() << std::endl;
+
+
 }catch(std::runtime_error & e){
 	std::cerr << e.what() << std::endl;
 }
@@ -31,8 +40,8 @@ try{
 sock->connect_to("localhost",80);
 sock->write("GET /\r\n");
 printf("%s\n",sock->Read());
-}catch(Sockets::for_throws err){
-  if ( err == 1 ) printf("You are not set sock");
+}catch(...){
+
 }
 delete sock;
 #endif

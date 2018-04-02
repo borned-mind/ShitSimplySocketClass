@@ -66,6 +66,7 @@ void Socket::connect_to(std::string host, int port) {
 
    if (connect(self_socket,(struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) 
 		throw_error("Can't connect to ", host, ":", port );
+
    status_sock = status_of_socket::connected;
 
 }
@@ -197,8 +198,8 @@ void Socket::write(std::wstring message,int signal,struct sockaddr *to) {
 }
 
 
-std::string Socket::Read(int socket,unsigned long long sizebuf){
-
+std::string Socket::Read(unsigned long long sizebuf, int socket){
+   if(socket == 0) socket = self_socket;
    char * buffer = new char[sizebuf];
    #ifdef WIN32
    if((recv(socket, buffer, sizebuf-1, 0)) <=0 ) 
@@ -220,14 +221,13 @@ udp_packet Socket::Read_UDP(unsigned long long sizebuf,int flags){
   char * buffer = new char[sizebuf];
 
  if( recvfrom(this->self_socket, buffer, sizebuf-1, flags,
-                 (struct sockaddr *)&returns.from, &returns.fromlen) == -1 )throw(bad_read);
+                 (struct sockaddr *)&returns.from, &returns.fromlen) == -1 )
+		throw_error("can't read");
   returns.message=buffer;
   return returns;
 }
 
-std::string Socket::Read(unsigned long long sizebuf){
-	return Read(self_socket, sizebuf);
-}
+
 
 
 
@@ -246,118 +246,119 @@ int Socket::shutdown_sock(int socket,int how){
 
 namespace Dark{
 
-	Socks5Proxy::Socks5Proxy(const char * host,int port,
-	const char * proxy_host,const int proxy_port){
+Socks5Proxy::Socks5Proxy(const char * proxy_host,const int proxy_port){
 
-	try{
-		set_sock(init_socket_tcp());
-	}catch(...){
-		error=true;
-		close_self_sock(); // close self sock.
-	}
+try{
+	set_sock(init_socket_tcp());
+}
+
+catch(...){
+this->error=true;
+try{
+	close_self_sock(); // close self sock.
+}catch(...){
+	this->error=true;
+}
 
 
+}// try 13:0
 
-if(!error){
+if(!this->error){
 
 
 	try{
 		connect_to(proxy_host,proxy_port); // conecting to proxy
-	}catch( ... ){
+	}catch( ...){
+	try{
 		close_self_sock(); // close self sock.
+	}catch(...){
+		this->error=true;// if error with closing fd
 	}
+		this->error=true;// if error with connect
+	} 
+
 }// if not error
-
-
-
-if( !SocksConnect(host,port) ){
-	 close_self_sock(); // close self sock.
-	 error=true;
-}//if
-
 
 }
 
 
 bool Socks5Proxy::ReConnectToDark(void){
-	try{
-		shutdown_sock(0); // close read in fd.
-		shutdown_sock(1); // close write in fd.
-		close_self_sock(); // close self sock.
-	}catch(...){
-		return false;
-	} 
-
-	if(!BackHost || !BackPort) return false;
-	Socks5Proxy(BackHost,BackPort);
-	return SocksConnect();
+try{
+shutdown_sock(0); // close read in fd.
+shutdown_sock(1); // close write in fd.
+close_self_sock(); // close self sock.
+}catch(...){
+return false;
+} 
+if(!BackHost || !BackPort) return false;
+Socks5Proxy(BackHost,BackPort);
+return SocksConnect();
 }
 
 bool Socks5Proxy::SocksConnect(void){
-	if(!BackHost || !BackPort) return false;
-	return SocksConnect(BackHost,BackPort);
+if(!BackHost || !BackPort) return false;
+return SocksConnect(BackHost,BackPort);
+}bool Socks5Proxy::SocksConnect(const char * host,const int port){
+//set streaming
+byte * bytes = new byte[4];
+bytes[0] = 0x05;
+bytes[1] = 0x01;
+bytes[2] = 0x00;
+try{
+writeBytes((const char*)bytes,3);
+}catch(...){
+delete [] bytes;
+return false;
 }
 
-bool Socks5Proxy::SocksConnect(const char * host,const int port){
-//set streaming
-	byte * bytes = new byte[4];
-	bytes[0] = 0x05;
-	bytes[1] = 0x01;
-	bytes[2] = 0x00;
-	try{
-		writeBytes((const char*)bytes,3);
-	}catch(Sockets::for_throws err){
-		delete [] bytes;
-		return false;
-	}
 
 
-
-	char * server_answer = strdup(const_cast<char*>(Read(4).c_str()));
-	if( server_answer[1] != 0  ){
-		delete [] bytes;
-		return false; // error
-	}
-	if( !BackHost || !BackPort){
-	// not connected, we have to set
-		BackHost = strdup(host);
-		BackPort = port;
-	}
-
-
-	delete  [] server_answer;
+char * server_answer = strdup(Read(4).c_str());
+if( server_answer[1] != 0  ){
+delete [] bytes;
+return false; // error
+}
+if( !BackHost || !BackPort){
+// not connected, we have to set
+BackHost = strdup(host);
+BackPort = port;
+}
 
 
-	char  hostLen = (char)strlen(host);
-	char* LastRequst = new char[4 + 1 + hostLen + 2];
-	short HPort = htons(port);
-
-	bytes[3]=3;
-
-	memcpy(LastRequst, bytes, 4);                // 5, 1, 0, 3
-	memcpy(LastRequst + 4, &hostLen, 1);        // Domain Length 1 byte
-	memcpy(LastRequst + 5, host, hostLen);    // Domain 
-	memcpy(LastRequst + 5 + hostLen, &HPort, 2); // Port
-
-	writeBytes((const char*)LastRequst,4 + 1 + hostLen + 2);
-
-	delete [] LastRequst;
+delete  [] server_answer;
 
 
-	server_answer=strdup(const_cast<char*>(Read(4).c_str()));
-	if(server_answer[1] != 0){
-		delete [] bytes;
-		return false;
-	}
+char  hostLen = (char)strlen(host);
+char* LastRequst = new char[4 + 1 + hostLen + 2];
+short HPort = htons(port);
 
-	delete  [] server_answer;
-	delete [] bytes;
+bytes[3]=3;
 
-	this->connected=true;
-	return true;
-}//func
+memcpy(LastRequst, bytes, 4);                // 5, 1, 0, 3
+memcpy(LastRequst + 4, &hostLen, 1);        // Domain Length 1 byte
+memcpy(LastRequst + 5, host, hostLen);    // Domain 
+memcpy(LastRequst + 5 + hostLen, &HPort, 2); // Port
 
-}//namespace
+writeBytes((const char*)LastRequst,4 + 1 + hostLen + 2);
+
+delete [] LastRequst;
+
+
+server_answer=strdup(Read(10).c_str());
+if(server_answer[1] != 0){
+delete [] bytes;
+return false;
+}
+
+delete  [] server_answer;
+delete [] bytes;
+
+this->connected=true;
+return true;
+}
+
+}
+
 
 
 // RAW / ICMP
@@ -396,7 +397,7 @@ if(!ownHeader){
 }
 else{
  int s = this->init_socket(domain,SOCK_RAW, IPPROTO_RAW);
- if( s == -1 ) throw(init_sock_err);
+ if( s == -1 ) throw_error("Can't init socket");
  this->self_raw_packet.raw_buf = new char[SIZEBUFFER];
  this->self_raw_packet.ip = (struct ipheader *) this->self_raw_packet.raw_buf;
  this->self_raw_packet.header = (struct raw_header *) (this->self_raw_packet.raw_buf + sizeof(struct ipheader));

@@ -13,8 +13,9 @@ endif
 all: socket.o somefunc.o library SimplyClassCopyHeaders
 
 SimplyClassCopyHeaders:
-	cp source/socket.hpp library/SimplyClassSocket.hpp
-	cp source/somefunc.hpp library/somefunc.hpp
+	cp source/socket.hpp library/
+	cp source/somefunc.hpp library/
+	cp source/sockets_stuff.hpp library/
 test:
 	g++ source/main.cpp -L library/ -l$(NAMELIBRARY) -o $(TESTPROGRAMNAME)
 

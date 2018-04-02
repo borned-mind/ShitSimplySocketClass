@@ -1,6 +1,14 @@
 NAMELIBRARY=simplysocket
 FLAGS = -fPIC
 TESTPROGRAMNAME=testprogram
+exit_library:=
+
+ifeq ($(uname_S), Windows)
+    exit_library+=library/lib$(NAMELIBRARY).dll
+else 
+    exit_library+=library/lib$(NAMELIBRARY).so
+endif
+
 
 all: socket.o somefunc.o library SimplyClassCopyHeaders
 
@@ -17,7 +25,7 @@ somefunc.o:
 	
 library:
 	mkdir library
-	g++ -shared build/*.o -o library/lib$(NAMELIBRARY).so
+	g++ -shared build/*.o -o $(exit_library)
 clean:
 	rm -rf library
 	rm -rf $(TESTPROGRAMNAME)

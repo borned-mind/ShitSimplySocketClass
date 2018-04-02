@@ -17,6 +17,7 @@ Socket::Socket(const char * host, int port, type_sock type, int domain , int pro
 				break;
 	case type_sock::udp:
 			self_socket=init_socket_udp(domain,protocol);
+				break;
 	default:
 		throw( std::runtime_error( "Undefined type of socket" ) );
    }
